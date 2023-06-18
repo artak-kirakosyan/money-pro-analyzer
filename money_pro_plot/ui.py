@@ -3,9 +3,9 @@ from collections import Callable
 from tkinter import Tk, Button
 from tkinter import filedialog as fd
 
-from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+from money_pro_plot.plot_helper import get_plot_figure
 from parser.statistics import CSVParser
 
 BUTTON_WIDTH = 50
@@ -26,6 +26,10 @@ class CleanAble:
     def clean(self):
         for widget in self.main.winfo_children():
             widget.destroy()
+
+
+class CategoryShower(CleanAble):
+    pass
 
 
 class FileSelector(CleanAble):
@@ -118,7 +122,7 @@ class MoneyProVisualiser(CleanAble):
             button.grid(row=index)
 
     def show_subcategory(self, category, subcategory: str):
-        fig = self.get_plot_figure(category, subcategory)
+        fig = get_plot_figure(self.data, category, subcategory)
 
         self.clean()
         plot_window = tkinter.Frame(self.main)
@@ -143,19 +147,9 @@ class MoneyProVisualiser(CleanAble):
 
         canvas.get_tk_widget().grid(row=3)
 
-    def get_plot_figure(self, category, subcategory):
-        subcategory_data = self.data.get_subcategory_history_in_currency(
-            "AMD", category, subcategory,
-        )
-        dates = list(subcategory_data.keys())
-        amounts = list(subcategory_data.values())
-        dates = ["{}/{}".format(i[1], i[0]) for i in dates]
-        fig = plt.figure(figsize=(15, 9))
-        plt.plot(dates, amounts)
-        plt.grid()
-        plt.xticks(rotation=60)
-        return fig
-
     @property
-    def data(self):
-        return self.file_selector.data
+    def data(self) -> CSVParser:
+        data = self.file_selector.data
+        if data is None:
+            raise RuntimeError("No data, contact the support")
+        return data
