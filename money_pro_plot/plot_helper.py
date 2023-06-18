@@ -5,19 +5,31 @@ from matplotlib import pyplot as plt
 from parser.statistics import CSVParser
 
 
+def get_plot_figure_category(data: CSVParser, category):
+    category_data = data.get_category_history_in_currency("AMD", category)
+    dates = list(category_data.keys())
+    amounts = list(category_data.values())
+
+    return plot(dates, amounts)
+
+
+def plot(x, y):
+    filled_dates, filled_amounts = fill_in_empty_dates(x, y)
+    plt_dates = ["{}/{}".format(i[1], i[0]) for i in filled_dates]
+    fig = plt.figure(figsize=(18, 9))
+    plt.plot(plt_dates, filled_amounts)
+    plt.grid()
+    plt.xticks(rotation=60)
+    return fig
+
+
 def get_plot_figure(data: CSVParser, category, subcategory):
     subcategory_data = data.get_subcategory_history_in_currency(
         "AMD", category, subcategory,
     )
     dates = list(subcategory_data.keys())
     amounts = list(subcategory_data.values())
-    filled_dates, filled_amounts = fill_in_empty_dates(dates, amounts)
-    plt_dates = ["{}/{}".format(i[1], i[0]) for i in filled_dates]
-    fig = plt.figure(figsize=(15, 9))
-    plt.plot(plt_dates, filled_amounts)
-    plt.grid()
-    plt.xticks(rotation=60)
-    return fig
+    return plot(dates, amounts)
 
 
 def fill_in_empty_dates(dates: List[Tuple[int, int]], amounts: List[Any]):
