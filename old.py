@@ -12,7 +12,7 @@ from parser.read_csv import read_csv
 def get_expenses(file_path) -> pd.DataFrame:
     df = read_csv(file_path)
     exps = df[df['Transaction Type'] == "Expense"].copy()
-    exps.drop(["Amount received", "Account (to)", "Balance", "Transaction Type", "Agent"], axis=1, inplace=True)
+    exps.drop(["Amount received", "Account (to)", "Balance", "Transaction Type", "Agent"], axis=1, inplace=True, errors='ignore')
     return exps
 
 
