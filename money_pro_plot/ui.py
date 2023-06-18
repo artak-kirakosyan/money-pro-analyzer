@@ -2,7 +2,7 @@ import tkinter
 from tkinter import Tk, Button
 from tkinter import filedialog as fd
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 from money_pro_plot.plot_helper import get_plot_figure
 from parser.statistics import CSVParser
@@ -129,4 +129,7 @@ class MoneyProVisualiser:
         canvas = FigureCanvasTkAgg(fig, master=plot_window)
         canvas.draw()
 
-        canvas.get_tk_widget().grid(row=3)
+        toolbar = NavigationToolbar2Tk(canvas, plot_window, pack_toolbar=False)
+        toolbar.update()
+        toolbar.grid(row=3)
+        canvas.get_tk_widget().grid(row=4)
