@@ -1,5 +1,4 @@
 import tkinter
-from typing import Callable
 from tkinter import Tk, Button
 from tkinter import filedialog as fd
 
@@ -20,23 +19,16 @@ def get_font(size: int = SIZE, is_bold: bool = False):
     return font
 
 
-class CleanAble:
-    main: Tk
+class MoneyProVisualiser:
+    def __init__(self):
+        self.main = Tk(className=" MoneyPro Visualizer ")
+        self.data = None
+        self.show_file_selector()
+        self.main.mainloop()
 
     def clean(self):
         for widget in self.main.winfo_children():
             widget.destroy()
-
-
-class CategoryShower(CleanAble):
-    pass
-
-
-class FileSelector(CleanAble):
-    def __init__(self, main: Tk, callback: Callable):
-        self.main = main
-        self.data = None
-        self.callback = callback
 
     def show_file_selector(self):
         self.clean()
@@ -56,15 +48,7 @@ class FileSelector(CleanAble):
     def get_csv_file_selector(self):
         file = fd.askopenfile(mode="r")
         self.data = CSVParser(file)
-        self.callback()
-
-
-class MoneyProVisualiser(CleanAble):
-    def __init__(self):
-        self.main = Tk(className=" MoneyPro Visualizer ")
-        self.file_selector = FileSelector(self.main, self.show_category_buttons)
-        self.file_selector.show_file_selector()
-        self.main.mainloop()
+        self.show_category_buttons()
 
     def show_category_subcategories(self, category: str):
         def subcategory_shower(c: str):
@@ -110,7 +94,7 @@ class MoneyProVisualiser(CleanAble):
         button = Button(
             master=category_window,
             text="Back to file selector", width=BUTTON_WIDTH, font=get_font(TITLE_SIZE, is_bold=True),
-            command=self.file_selector.show_file_selector
+            command=self.show_file_selector
         )
         button.grid(row=1)
         for index, category in enumerate(self.data.get_categories(), start=2):
@@ -146,10 +130,3 @@ class MoneyProVisualiser(CleanAble):
         canvas.draw()
 
         canvas.get_tk_widget().grid(row=3)
-
-    @property
-    def data(self) -> CSVParser:
-        data = self.file_selector.data
-        if data is None:
-            raise RuntimeError("No data, contact the support")
-        return data
