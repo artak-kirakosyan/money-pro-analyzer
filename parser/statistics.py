@@ -48,7 +48,7 @@ def get_monthly_expenses_by_subcategory(df: pd.DataFrame) -> data_type:
 
 
 class CSVParser:
-    def __init__(self, file_path: str = "data/all_transactions_2021.csv"):
+    def __init__(self, file_path: str):
         df = read_csv(file_path)
         transactions, misses = process_transaction_types(df)
         self.misses = misses
