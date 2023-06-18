@@ -1,7 +1,6 @@
 import tkinter
 from tkinter import Tk, Button
 from tkinter import filedialog as fd
-from typing import Optional
 
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -20,20 +19,49 @@ def get_font(size: int = SIZE, is_bold: bool = False):
     return font
 
 
-class MoneyProVisualiser:
-    def __init__(self):
-        self.main = Tk(className=" MoneyPro Visualizer")
+class CleanAble:
+    main: Tk
+
+    def clean(self):
+        for widget in self.main.winfo_children():
+            widget.destroy()
+
+
+class FileSelector(CleanAble):
+    def __init__(self, main: Tk, finish_action):
+        self.main = main
+        self.data = None
+        self.finish_action = finish_action
+
+    def show_file_selector(self):
+        self.clean()
+        file_selector_frame = tkinter.Frame(self.main)
+        tkinter.BooleanVar(file_selector_frame)
+        tkinter.Label(
+            file_selector_frame, text="Select Money Pro export CSV file to begin",
+            font=get_font(TITLE_SIZE, is_bold=True)
+        ).grid(row=0)
         file_select_button = Button(
             master=self.main, width=BUTTON_WIDTH,
-            command=self.get_csv_file_content,
-            text="Select MoneyPro export file to begin...", font=get_font()
+            command=self.get_csv_file_selector,
+            text="Choose the file", font=get_font()
         )
-        file_select_button.pack()
-        self.data: Optional[CSVParser] = None
+        file_select_button.grid(row=1)
 
+    def get_csv_file_selector(self):
+        file = fd.askopenfile(mode="r")
+        self.data = CSVParser(file)
+        self.finish_action()
+
+
+class MoneyProVisualiser(CleanAble):
+    def __init__(self):
+        self.main = Tk(className=" MoneyPro Visualizer ")
+        self.file_selector = FileSelector(self.main, self.show_category_buttons)
+        self.file_selector.show_file_selector()
         self.main.mainloop()
 
-    def show_category(self, category: str):
+    def show_category_subcategories(self, category: str):
         def subcategory_shower(c: str):
             def inner():
                 return self.show_subcategory(category, c)
@@ -53,7 +81,6 @@ class MoneyProVisualiser:
             command=self.show_category_buttons
         )
         b.grid(row=1)
-        subcategory_buttons = []
         for index, subcategory in enumerate(self.data.get_category_subcategories(category), start=2):
             button = Button(
                 master=subcategory_window,
@@ -61,37 +88,33 @@ class MoneyProVisualiser:
                 command=subcategory_shower(subcategory)
             )
             button.grid(row=index)
-            subcategory_buttons.append(button)
+
+    def category_subcategories_shower(self, category: str):
+        def inner():
+            return self.show_category_subcategories(category)
+
+        return inner
 
     def show_category_buttons(self):
-        def category_shower(c: str):
-            def inner():
-                return self.show_category(c)
-
-            return inner
-
         self.clean()
         category_window = tkinter.Frame(self.main)
         category_window.grid()
-        tkinter.Label(category_window, text="Select category", font=get_font(TITLE_SIZE, is_bold=True)).grid(row=0)
-        category_buttons = []
-        for index, category in enumerate(self.data.get_categories(), start=1):
+        tkinter.Label(
+            category_window, text="Select category", font=get_font(TITLE_SIZE, is_bold=True)
+        ).grid(row=0)
+        button = Button(
+            master=category_window,
+            text="Back to file selector", width=BUTTON_WIDTH, font=get_font(TITLE_SIZE, is_bold=True),
+            command=self.file_selector.show_file_selector
+        )
+        button.grid(row=1)
+        for index, category in enumerate(self.data.get_categories(), start=2):
             button = Button(
                 master=category_window,
-                text=category, width=BUTTON_WIDTH,
-                command=category_shower(category)
+                text=category, width=BUTTON_WIDTH, font=get_font(),
+                command=self.category_subcategories_shower(category)
             )
             button.grid(row=index)
-            category_buttons.append(button)
-
-    def get_csv_file_content(self):
-        file = fd.askopenfile(mode="r")
-        self.data = CSVParser(file)
-        self.show_category_buttons()
-
-    def clean(self):
-        for widget in self.main.winfo_children():
-            widget.destroy()
 
     def show_subcategory(self, category, subcategory: str):
         fig = self.get_plot_figure(category, subcategory)
@@ -105,7 +128,7 @@ class MoneyProVisualiser:
         ).grid(row=0)
 
         def back_to_sub_categories():
-            return self.show_category(category)
+            return self.show_category_subcategories(category)
 
         b = Button(
             master=plot_window,
@@ -131,6 +154,10 @@ class MoneyProVisualiser:
         plt.grid()
         plt.xticks(rotation=60)
         return fig
+
+    @property
+    def data(self):
+        return self.file_selector.data
 
 
 g = MoneyProVisualiser()
