@@ -1,5 +1,5 @@
 import tkinter
-from collections import Callable
+from typing import Callable
 from tkinter import Tk, Button
 from tkinter import filedialog as fd
 

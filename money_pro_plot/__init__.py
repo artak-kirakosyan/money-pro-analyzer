@@ -1,4 +1,4 @@
-from ui import MoneyProVisualiser
+from .ui import MoneyProVisualiser
 
 __all__ = [
     "MoneyProVisualiser"
