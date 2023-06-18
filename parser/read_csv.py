@@ -14,7 +14,7 @@ def remove_currency(amount: str) -> float:
     return float(
         "".join(
             [
-                i for i in amount if not i.isalpha() and i not in "$,"
+                i for i in amount if not i.isalpha() and i not in "$,€"
             ]
         )
     )
