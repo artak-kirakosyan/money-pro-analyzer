@@ -1,4 +1,5 @@
 import tkinter
+from collections import Callable
 from tkinter import Tk, Button
 from tkinter import filedialog as fd
 
@@ -28,10 +29,10 @@ class CleanAble:
 
 
 class FileSelector(CleanAble):
-    def __init__(self, main: Tk, finish_action):
+    def __init__(self, main: Tk, callback: Callable):
         self.main = main
         self.data = None
-        self.finish_action = finish_action
+        self.callback = callback
 
     def show_file_selector(self):
         self.clean()
@@ -51,7 +52,7 @@ class FileSelector(CleanAble):
     def get_csv_file_selector(self):
         file = fd.askopenfile(mode="r")
         self.data = CSVParser(file)
-        self.finish_action()
+        self.callback()
 
 
 class MoneyProVisualiser(CleanAble):
@@ -158,6 +159,3 @@ class MoneyProVisualiser(CleanAble):
     @property
     def data(self):
         return self.file_selector.data
-
-
-g = MoneyProVisualiser()

@@ -1,6 +1,3 @@
-from parser.statistics import CSVParser
+from money_pro_plot import MoneyProVisualiser
 
-c = CSVParser("data/transactions_2023_06_18.csv")
-
-res = c.get_subcategory_history_in_currency("AMD", "Utilities", "Cell Phone")
-print(res)
+g = MoneyProVisualiser()
